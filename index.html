@@ -2,6 +2,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://tile.googleapis.com" crossorigin>
+<link rel="dns-prefetch" href="https://maps.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&family=Jost:wght@300;400;500&family=Marcellus&display=swap">
 <style>
 /* Layout pensado para tablet na horizontal (iPad): barra lateral à esquerda com as três escalas (bairro, edifício,
@@ -859,7 +863,8 @@ async function loadModel(){
     mBar(100); setTimeout(() => { const l = document.getElementById('loading'); if (l.classList.contains('soft') || cityShown) l.classList.add('hide'); }, 200); if (mode === 'apto' && !tour.on) goOverview();
   }, failLoad);
 }
-loadModel().catch(failLoad);
+/* o apartamento só carrega depois que a cidade aparece (ou ao entrar no Apto), para não disputar banda com o mapa */
+let modelP = null; const ensureModel = () => modelP || (modelP = loadModel().catch(failLoad));
 
 /* ================= navegação: grade de piso livre pré-calculada (5 cm) ================= */
 const NAV = {"X0": -6.8, "Z0": -6.3, "C": 0.05, "NX": 142, "NZ": 215, "b64": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH///4AAAAAAAAAAAAAAAAAP///////4AAAAAAAAAAAAAAA////////gAAAAAAAAAAAAAAD///////+AAAAAAAAAAAAAAAP///////4AAAAAAAAAAAAAAA////////gAAAAAAAAAAAAAAD/4AAAA/+AAAAAAAAAAAAAAAP+AAAAA/4AAAAAAAAAAAAAAA/wAAAAB/gAAAAAAAAAAAAAAD+AAAAAD+AAAAAAAAAAAAAAAPwAAAAAH4AAAAAAAAAAAAAAA/AAAAAAfgAAAAAAAAAAAAAAD8AAAAAB+AAAAAAAAAAAAAAAPwAAAAAH4AAAAAAAAAAAAAAA/AAAAAAfgAAAAAAAAAAAAAAD8AAAAAB+AAAAAAAAAAAAAAAPwAAAAAH4AAAAAAAAAAAAAAA/AAAAAAPgAAAAAAAAAAAAAAD8AAAAAB+AAAAAAAAAAAAAAAPwAAAAAD4AAAAAAAAAAAAAAA/AAAAAAfgAAAAAAAAAAAAAAD8AAAAAB+AAAAAAAAAAAAAAAfwAAAAAH4AAAAAAAAAAAAAAD+AAAAAAPgH//h/////+AAA//4AAAAAA+Af////////+AAH//gAAAAAD4B///////////4//+AAAAAAfgH//////////////4AAAAAB+Af//////////////gAAAAAD4B//////////////+AAAAAAPgH//////////////4AAAAAA+Af//////////////wAAAAAH4B///////////////AAAAAAfgH//////////////8AAAAAB+Af////////////wAAAAAAAH4B/////////j//+AAAAAAAAfgH////////8H//wAAAAAAAB+Af////////gP//AAAAAAAAH4B////////+A//8AAAAAAAAfgH////////8Af/wAAAAAAAA+Af////////wA//AAAAAAAAB4B/////////AB/8AAAAAAAADgH////////8AH/wAAAAAAAAOAf////////wAf/AAAAAAAAA4B/////////AB/8AAAAAAAADgAAAAAAf//8AAAAAAAAAAAAAAAAAAAA///wAAAAAAAAAAAAAAAAAAAB///AAAAAAAAAAAAAAAAAAAAH//8AAAAAAAAAAAAAAAAAAAAf//wAAAAAAAAAAAAAAAAAAAB///AAAAAAAAAAAAAAAAAAAAH//8AAAAAAAAAAAAAAAAAAAAf//wAf//////////4AAAAAAB///AB///////////gAAAAAAH//8AHj/////////+AAAAAAAf//wAAH/////////4AAAAAAB//+AAAP/////////gAAAAAAH//4AAAf////////+AAAAAAAf//wAAD/////////4AAAAAAB///gAAf/////////gAAAAAAH/////j/////////+AAAAAAAf///////////////4B///4AB////////////////gH////wH///////////////+Af////Af///////////////4B////8B////////////////gH////wH///////////////+Af////Af///////////////4B////8B////////////////gH////wHv//////////////+Af////AYf/4////////////4B////+DA//B////////////gH////8YD/4D///////H///+Af/////gH/gP/4MAAAQP///4B/////+A//A//AAAAAAf///gH/////4D/8D/4AAAAAA///+Af/////Af/wP/AAAAAAB///4B/////4D//A/4AAAAAAH///gH/////gf/8D/gAAAAAAf//+Af////8B//wP/AAAAAAB///4B/////wP//A/8AAAAAAH///gH////+B//8D/wAAAAAAf//+Af////4H//wP/AAAAAAB///4B/////A///A/8AAAAAAH///gH////4D//8D/wAAAAAAf//+Af////Af//wP+AAAAAAB///4B////8B///A/wAAAAAAD/wAAH////wH//8D+AAAAAAAH+AAAAAAAAAf//wP4AAAAAAAfwAAAAAAAAB///A/wAAAAAAD/AAAAAAAAAH//8D/AAAAAAAP+AAAAAAAAAf//wP8AAAAAAA/4AAAAAAAAB///A/4AAAAAAD/gAAAAAAAAH//8D/gAAAAAAP+AAAAAAAAAf//wP+AAAAAAA/4AAAAAAAAB///A/4AAAAAAD/gAAAAAAAAH//8D/gAAAAAAP+AAAAAAAAAf//wP+AAAAAAA/4AAAAAAAAB///A/4AAAAAAD/gAAAAAAAAH//8D/wAAAAAAf+AAAAAAAAAf//wP/gAAAAAD/4AAAAAAAAB///A4+AAAAAAfjgAAAAAAAAH//8CA8AAAAAB4CAAAAAAAAAf//wABwAAAAAHAAAAAAAAAAB///AADAAAAAAYAAAAAAAAAAH//8AAEAAAAABAAAAAAAAAAAf//wAAAAAAAAAAAAAAAAAAABz//AAAAAAAAAAAAAAAAAAAAOH/8AAAAAAAAAAAAAAAH///xwP/wAAAAAAAAAAAAAAAf///+Af/AAAAAAAAAAAAAAAB////4D/8AAAAAAAAAAAAAAAH////gP/wAAAAAAAAAAAAAAAf///8B//AAAAAAAAAAAAAAAB////wP/8AAAAAAAAAAAAAAAH///+B//wAAAAAAAAAAAAAAAf///wH//AAAAAAAAAAAAAAAB////A//8AAAAAAAAAAAAAAAH///4D//gAAAAAAAAAAAAAAAf///gf/+AAAAAAAAAAAAAAAAAP/8D//4AAAAAAAAAAAAAAAAAP/gP//gAAAAAAAAAAAAAAAAAf8B//+AAAAAAAAAAAAAAAAAA/wH//4AAAAAAAAAAAAAAAAAD/Af//gAAAAAAAAAAAAAAAAAH8B//+AAAAAAAAAAAAAAAAAAfwH//4AAAAAAAAAAAAAAAAAD/Af//gAAAAAAAAAAAAAAAAAP8B//+AAAAAAAAAAAAAAAAAB/wH//4AAAAAAAAAAAAAAAAAP/Af//gAAAAAAAAAAAAAAAAAAAB//+AAAAAAAAAAAAAAAAAAAAH//4AAAAAD////8AAAAAAAAAf//gAAAAAP////wAAAAAAAAB//+AAAAAA/////AAAAAAAAAP//4AAAAAD////8AAAAAAAAB///gAAAAAP////wAAAAf8AAH///AAAAAA/////AAAAB/wAAf//+AAAAAH////8AAAAH/AAB///8AAAAA/////wAAAAf8AAH//////////////AAAAB/wAAP/////////////8AAAAH/AAA//////////////gAAAAf8AAD/////////////+AAAAB/wAAP/////////////4AAAAH/AAA//////////////gAAAAf8AAD/////////////+AAAAB/wAAP/////////////4AAAAH/AAA//////QHgLwF//gAAAAf8AAD/////4AMAGAD/+AAAAB/wAAP/////AAAAAAH/4AAAAH/AAA8AAAH8AAAAAAf/gAAAAf+AAHgAAAPgAAAAAA//AAAAB/8AA8AAAAeAAAAAAD/8AAAAH/4AHgAAAA4AAAAAAP/gAAAAf///+AAAADAAAAAAAf+AAAAB////4AAAAIAAAAAAA/4AAAAH////gAAAAAAAAAAAB/gAAAAf///+AAAAAAAAAAAAH+AAAAB////4AAAAAAAAAAAAP4AAAAH////gAAAAAAAAAAAA/gAAAAf///+AAAAAAAAAAAAD+AAAAB/wAP4AAAAAAAAAAAAP4AAAAH+AAfgAAAAAAAAAAAA/gAAAAfwAA+AAAAAAAAAAAAD+AAAAB/AAD4AAAAAAAAAAAAP4AAAAH8AAPgAAAAAAAAAAAA/gAAAAfwAA+AAAAAAAAAAAAD/AAAAB/AAD4AAAAAAAAAAAAP+AAAAH8AAPgAAAAAAAAAAAA/8AAAAfwAA+AAAAAAAAAAAAD///gAB/AAD4AAAAAAAAAAAAP//+AAH8AAPgAAAAAAAAAAAB///4AAfwAA+AAAAAAAAAAAAH///gAB/AAD4AAAAIAAAAAAA///+AAH8AAPgAAAAwAAAAAAH///4AAfwAA+AAAADgAAAAAA////gAB/AAD4AAAAOAAAAAAD///+AAH8AAPgAAAA4AAAAAAP///4AAfwAA+AAAADwAAAAAB////gAB/AAD4AAAAPAAAAAAH///+AAH8AAPgAAAA+ADABgA////4AAfwAA+AAAAD8AeAPAH////gAB/AAD4AAAAP//////////+AAH8AAPgAAAA///////////4AAfwAA+AAAAD///////////gAB/AAD4AAAAAAAP///+P/4AAAH8AAPgAAAAAAAf///wf/AAAAfwAA+AAAAAAAA///+A/4AAAB/gAH4AAAAAAAD///4D/gAAAH/AA/gAAAAAAAf///wf/AAAAf///+AAAAAAAD////r/+AAAB////4AAAAAAAP//////4AAAH////gAAAAAAAAAAAAAAAAAAf///+AAAAAAAAAAAAAAAAAAB////4AAAAAAAAAAAAAAAAAAH////wAAAAAAAAAAAAAAAAAAf////gAAAAAAAAAAAAAAAAAB/////AAAAAAAAAAAAAAAAAAH////////8AAAAAAAAAAAAAAf////////wAAAAAAAAAAAAAB/////////AAAAAAAAAAAAAAH////////8AAAAAAAAAAAAAAf////////wAAAAAAAAAAAAAB/////////AAAAAAAAAAAAAAH////////8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="};
@@ -1282,7 +1287,7 @@ let mode = 'edificio', rmode = 'edificio';
 /* ================= cidade: bairro e edifício (em metros; mar a leste = +x, norte = -z) =================
    Visual de foto de drone: céu físico, sol com sombras, oclusão de ambiente (GTAO), mar com ondas e transparência
    na areia, fachadas com janelas geradas no shader, casas com telhado cerâmico, árvores, coqueiros e carros andando. */
-renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true;
 const city = new THREE.Scene();
 const ccam = new THREE.PerspectiveCamera(30, 1, 2, 9000);
 const cctl = new OrbitControls(ccam, canvas);
@@ -1312,7 +1317,7 @@ function setSun(h, force){
   sunH = h;
   const t = Math.PI*(h-6)/12, el = THREE.MathUtils.degToRad(66)*Math.sin(Math.max(.03, Math.min(Math.PI-.03, t)));
   const hx = .55*Math.sin(t) + .12, hz = Math.cos(t), hl = Math.hypot(hx, hz); const dir = new THREE.Vector3(hx/hl*Math.cos(el), Math.sin(el), hz/hl*Math.cos(el)).normalize();
-  sunL.position.copy(sunL.target.position).addScaledVector(dir, 1200);
+  sunL.position.copy(sunL.target.position).addScaledVector(dir, 1200); renderer.shadowMap.needsUpdate = true;
   sky.material.uniforms.sunPosition.value.copy(dir); envSky.material.uniforms.sunPosition.value.copy(dir);
   const low = 1 - Math.min(1, el/THREE.MathUtils.degToRad(30));
   sunL.color.set('#fff4e6').lerp(C('#ffb36b'), low*.9); sunL.intensity = 1.6 + 1.9*(1-low);
@@ -1860,7 +1865,8 @@ function updateCars(dt){
 
 /* ---------- pós-processamento: oclusão de ambiente, tom de filme e vinheta ---------- */
 const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(16, 16, {type:THREE.HalfFloatType, samples:4}));
-composer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+const PXCAP = 2560*1440, fxRatio = () => Math.max(.75, Math.min(devicePixelRatio, 1.5, Math.sqrt(PXCAP/(innerWidth*innerHeight))));
+composer.setPixelRatio(fxRatio()); addEventListener('resize', () => composer.setPixelRatio(fxRatio()));
 composer.addPass(new RenderPass(city, ccam));
 const gtao = new GTAOPass(city, ccam, 16, 16); gtao.blendIntensity = .85;
 gtao.updateGtaoMaterial({radius:9, distanceExponent:1.6, thickness:8, scale:1, samples:16, distanceFallOff:1, screenSpaceRadius:false});
@@ -1907,7 +1913,13 @@ shadowMat.onBeforeCompile = sh => { sh.uniforms.lot = tileU.lot; sh.uniforms.cut
 tiles.addEventListener('load-model', ({scene}) => { const ms = []; scene.traverse(o => { if (o.material) ms.push(o); });
   for (const o of ms){ const old = o.material; o.material = tileMat(old.map); old.dispose(); o.castShadow = false; o.receiveShadow = false;
     if (!o.geometry.attributes.normal) o.geometry.computeVertexNormals();  // sem normais a sombra vira NaN
-    const sm = new THREE.Mesh(o.geometry, shadowMat); sm.receiveShadow = true; sm.renderOrder = 1; o.add(sm); } });
+    const sm = new THREE.Mesh(o.geometry, shadowMat); sm.receiveShadow = true; sm.renderOrder = 1; sm.visible = false; o.add(sm); shadowLayers.add(sm); } shadowDirty = true; });
+tiles.addEventListener('dispose-model', ({scene}) => scene.traverse(o => { if (o.material === shadowMat) shadowLayers.delete(o); }));
+/* camada de sombra só nas peças a até ~520 m da torre (o resto da cidade não recebe a sombra dela) */
+const shadowLayers = window.__shL = new Set(), _sb = new THREE.Sphere(); let shadowDirty = true, shadowT = 0;
+function updShadowLayers(now){ if (!shadowDirty && now - shadowT < 1500) return; shadowDirty = false; shadowT = now;
+  for (const m of shadowLayers){ const g = m.geometry; if (!g.boundingSphere) g.computeBoundingSphere(); _sb.copy(g.boundingSphere).applyMatrix4(m.matrixWorld);
+    m.visible = Math.hypot(_sb.center.x - TX, _sb.center.z - TZ) - _sb.radius < 520 && _sb.radius < 400; } }
 tiles.setCamera(ccam); window.__tiles = tiles; window.__shadowMat = shadowMat;
 // atribuição obrigatória dos dados do Google
 const gAttr = document.createElement('div'); gAttr.id = 'gattr'; gAttr.style.cssText = 'position:fixed;left:calc(50% + var(--sx));transform:translateX(-50%);bottom:8px;z-index:30;white-space:nowrap;font:500 11px/1.3 "DM Sans",system-ui,sans-serif;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6);pointer-events:none;opacity:.9;transition:opacity .4s';
@@ -2138,7 +2150,7 @@ const sph = (p, t) => { const v = new THREE.Vector3().subVectors(p, t), r = v.le
 const easeFly = t => t < .5 ? 16*t*t*t*t*t : 1 - Math.pow(-2*t+2, 5)/2;   // quinta: arranca e pousa macio
 function cityFly(pos, target, dur, then){
   const a = sph(ccam.position, cctl.target), b = sph(pos, target), travel = cctl.target.distanceTo(target) + Math.abs(Math.log(b.r/a.r))*120;
-  dur = dur ?? THREE.MathUtils.clamp(1300 + travel*1.6, 1500, 3200);
+  dur = dur ?? THREE.MathUtils.clamp(900 + travel*1.1, 1100, 2200);
   cityAnim = {t0:performance.now(), dur, a, b, l0:cctl.target.clone(), l1:target.clone(), dth:wrap(b.th - a.th), arc:THREE.MathUtils.clamp(travel/1600, 0, .22), then};
 }
 function cityStep(now){
@@ -2178,7 +2190,7 @@ function enterVista(){
   if (front){ x = TX+TD/2+1.0; z = (u.z[0]+u.z[1])/2; lx = x + .085; lz = z + .03; } else { z = TZ-TW/2-1.0; x = (u.x[0]+u.x[1])/2; lx = x + .03; lz = z - .085; }
   vista = {front};
   ccam.near = .25; ccam.fov = 62; ccam.updateProjectionMatrix(); setLimits('vista'); cctl.autoRotate = false;
-  cityFly(new THREE.Vector3(x, y, z), new THREE.Vector3(lx, y - .022, lz), 2600, () => {});
+  cityFly(new THREE.Vector3(x, y, z), new THREE.Vector3(lx, y - .022, lz), 1900, () => {});
   document.body.classList.add('vista'); band.visible = unitBox.visible = false;
   showCtx(`Vista do ${sel.floor}º andar · final ${u.id}`, 'Sair da vista', exitVista);
   hint('Arraste para olhar em volta', 4000);
@@ -2274,7 +2286,7 @@ function cityTick(now, dt){
   bandMat.opacity = .16 + .06*Math.sin(now/600) + .35*sel.flash; unitMat.opacity = .42 + .3*sel.flash;
   const t = now/1000; foamMat.uniforms.t.value = t; grade.uniforms.t.value = t % 10;
   waveNormal.offset.set(t*.006, t*.0035);
-  updateCars(dt);
+  if (carIM.visible) updateCars(dt);
   if (routeMesh){ const k = Math.min(1, (now - routeMesh.userData.t0)/(1100 + routeMesh.userData.len*1.1)); routeMat.uniforms.prog.value = 1 - Math.pow(1-k, 3); routeMat.uniforms.t.value = t;
     const cd = ccam.position.distanceTo(cctl.target); routeMat.uniforms.w.value = THREE.MathUtils.clamp(cd*.0085, 5, 19); routeMat.uniforms.bias.value = ringMat.uniforms.bias.value = THREE.MathUtils.clamp(cd*.014, 10, 30);
     destRing.scale.setScalar(THREE.MathUtils.clamp(cd/900, .7, 2.2)); }
@@ -2287,7 +2299,7 @@ function cityTick(now, dt){
   }
   { const nr = vista ? .25 : THREE.MathUtils.clamp(ccam.position.distanceTo(cctl.target)*.012, 1, 12); if (Math.abs(nr - ccam.near) > .2){ ccam.near = nr; ccam.updateProjectionMatrix(); } }
   { const minY = mode === 'bairro' ? 330 : 40; if (!vista && !cityAnim && ccam.position.y < minY) ccam.position.y += (minY - ccam.position.y)*(1-Math.exp(-dt*4)); }
-  ccam.updateMatrixWorld(); tiles.errorTarget = (vista ? 4 : 6)*Math.max(1, renderer.getPixelRatio()*.75); tiles.setResolutionFromRenderer(ccam, renderer); /* em tela retina não exige o dobro de detalhe */ tiles.update(); measureGround(now); settleGround(dt);
+  updShadowLayers(now); ccam.updateMatrixWorld(); tiles.errorTarget = (vista ? 4 : 6)*Math.max(1, renderer.getPixelRatio()*.75); tiles.setResolutionFromRenderer(ccam, renderer); /* em tela retina não exige o dobro de detalhe */ tiles.update(); measureGround(now); settleGround(dt);
   { const k = TILE_GAIN / Math.max(.2, renderer.toneMappingExposure/.4), dim = .62 + .38*Math.min(1, sunEl/THREE.MathUtils.degToRad(18));
     tileU.gain.value.setRGB(k*dim*(1 + .10*sunLow), k*dim*(1 - .02*sunLow), k*dim*(1 - .16*sunLow)); }
   // desfoque em volta do prédio: quanto mais perto da torre, mais o entorno (frente e fundo) sai de foco; foco sempre na torre
@@ -2295,7 +2307,7 @@ function cityTick(now, dt){
     dofK += (near - dofK)*(1-Math.exp(-dt*3));
     const fd = vista ? 400 : (mode === 'edificio' ? dT : ccam.position.distanceTo(cctl.target)); bokeh.uniforms.focus.value += (fd - bokeh.uniforms.focus.value)*(1-Math.exp(-dt*6));
     bokeh.uniforms.aperture.value = vista ? 0 : THREE.MathUtils.lerp(4e-6, 2.6e-5, dofK); bokeh.uniforms.maxblur.value = THREE.MathUtils.lerp(.0022, .0085, dofK);
-    bokeh.enabled = !vista && !NODOF; }
+    bokeh.enabled = !vista && !NODOF && (mode === 'edificio' || dofK > .02); }
   renderer.clippingPlanes = []; renderer.toneMapping = THREE.ACESFilmicToneMapping;
   composer.render(dt);
   renderer.toneMapping = THREE.NoToneMapping;
@@ -2460,15 +2472,15 @@ function setMode(m, o={}){
   ORDER.forEach(k => { const p = document.getElementById('pane-'+k); if (k === m){ p.classList.remove('enter'); void p.offsetWidth; p.classList.add('enter'); clearTimeout(p._et); p._et = setTimeout(() => p.classList.remove('enter'), 1400); } p.classList.toggle('on', k === m); p.classList.toggle('left', ORDER.indexOf(k) < ORDER.indexOf(m)); });
   document.getElementById('side-title').textContent = SIDE_T[m]; segInd(document.getElementById('seg-main'));
   pins.forEach(q => q.el.classList.add('off')); tipEl.classList.remove('on');
-  if (m === 'apto'){
+  if (m === 'apto'){ ensureModel();
     const go = () => { rmode = 'apto'; cctl.enabled = false; controls.enabled = true; curRoom = null; sheet.classList.remove('open'); curPoi = null;
       camera.position.set(CENTER.x+19, 24, CENTER.z+22); controls.target.copy(CENTER); resize(); goOverview(); setUI();
       if (!model){ const l = document.getElementById('loading'); l.classList.add('soft'); l.classList.remove('hide'); } };
     if (o.instant || prev === 'apto'){ go(); return; }
     if (prev === 'edificio'){ const u = UNITS.find(x => x.id === sel.unit), t = new THREE.Vector3((u.x[0]+u.x[1])/2, floorY(sel.floor)+1.5, (u.z[0]+u.z[1])/2);
-      const n = u.face === 'x' ? [1,0] : [0,-1]; cityFly(new THREE.Vector3(t.x + n[0]*26 + 4, t.y + 5, t.z + n[1]*26 + 4), t, 1300, () => {}); }
-    const wl = `${sel.floor}º andar · final ${sel.unit}`; setTimeout(() => warp(true, 'Entrando no studio', wl), prev === 'edificio' ? 650 : 0);
-    setTimeout(() => { go(); setTimeout(() => warp(false), 450); }, prev === 'edificio' ? 1750 : 1100);
+      const n = u.face === 'x' ? [1,0] : [0,-1]; cityFly(new THREE.Vector3(t.x + n[0]*26 + 4, t.y + 5, t.z + n[1]*26 + 4), t, 950, () => {}); }
+    const wl = `${sel.floor}º andar · final ${sel.unit}`; setTimeout(() => warp(true, 'Entrando no studio', wl), prev === 'edificio' ? 420 : 0);
+    setTimeout(() => { go(); setTimeout(() => warp(false), 350); }, prev === 'edificio' ? 1250 : 800);
     return;
   }
   const go = () => {
@@ -2479,7 +2491,7 @@ function setMode(m, o={}){
     controls.enabled = false; cctl.enabled = true; resize();
     if (m === 'bairro'){ if (curPlace) selectPlace(curPlace); else bairroView(); } else edificioView();
   };
-  if (prev === 'apto' && !o.instant){ warp(true, 'Saindo do studio', m === 'bairro' ? 'O bairro' : 'O edifício'); setTimeout(() => { go(); setTimeout(() => warp(false), 350); }, 950); } else go();
+  if (prev === 'apto' && !o.instant){ warp(true, 'Saindo do studio', m === 'bairro' ? 'O bairro' : 'O edifício'); setTimeout(() => { go(); setTimeout(() => warp(false), 280); }, 700); } else go();
 }
 document.querySelectorAll('#seg-main button').forEach(b => b.addEventListener('click', () => { leaveAttract(); setMode(b.dataset.mode); }));
 document.getElementById('collapse').addEventListener('click', () => { const on = !document.body.classList.contains('side-min'); document.body.classList.toggle('side-min', on);
@@ -2611,7 +2623,7 @@ setMode('edificio', {instant:true, force:true}); setUI();
   const cityReady = () => { const st = tiles.stats, k = Math.min(1, tiles.visibleTiles.size/60);
     setBar(Math.round(20 + 75*k));
     if ((st.downloading === 0 && st.parsing === 0 && tiles.visibleTiles.size > 40 && groundOK > 0) || performance.now() - t0 > 30000){
-      setBar(100); cityShown = true; setTimeout(() => { if (!L.classList.contains('soft')) L.classList.add('hide'); }, 600); }
+      setBar(100); cityShown = true; setTimeout(ensureModel, 2500); setTimeout(() => { if (!L.classList.contains('soft')) L.classList.add('hide'); }, 600); }
     else setTimeout(cityReady, 300); };
   setTimeout(cityReady, 600); }
 window.__dbg = {warp, setMode, selectPlace, PLACES, leaveAttract, enterAttract, rdockOpen, setFloor, cctl, ccam, get mode(){ return mode; }};
