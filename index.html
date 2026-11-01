@@ -1268,7 +1268,7 @@ document.getElementById('btn-measure').addEventListener('click', () => {
 
 /* ================= atração e inatividade ================= */
 const attract = document.getElementById('attract'); let attractOn = true, last = performance.now();
-const IDLE = new URLSearchParams(location.search).has('noidle') ? 1e12 : 120000;
+const IDLE_MS = {v: new URLSearchParams(location.search).has('noidle') ? 1e12 : 120000};
 function leaveAttract(){ if (!attractOn) return; attractOn = false; attract.classList.add('hide'); document.body.classList.remove('attract-on'); controls.autoRotate = false; cctl.autoRotate = false; setUI(); }
 function enterAttract(){
   attractOn = true; attract.classList.remove('hide'); document.body.classList.add('attract-on');
@@ -2537,7 +2537,7 @@ function tick(now){
   if (window.__pause){ requestAnimationFrame(tick); return; }
   const dt = Math.min(.1, Math.max(0, (now - lastNow)/1000)); lastNow = now;
   updShift(dt);
-  if (!attractOn && now-last > IDLE) enterAttract();
+  if (!attractOn && now-last > IDLE_MS.v) enterAttract();
   if (rmode !== 'apto' || mode !== 'apto'){ if (aptoUI) hideAptoUI(); if (rmode !== 'apto'){ cityTick(now, dt); requestAnimationFrame(tick); return; } }
   else aptoUI = true;
   renderer.clippingPlanes = [clipPlane];
@@ -2581,7 +2581,7 @@ function tick(now){
     controls.update(); camCone.style.opacity = 0;
     camDot.setAttribute('cx', controls.target.x.toFixed(2)); camDot.setAttribute('cy', controls.target.z.toFixed(2)); camDot.style.opacity = curRoom ? 1 : 0;
   }
-  if (!attractOn && now-last > IDLE) enterAttract();
+  if (!attractOn && now-last > IDLE_MS.v) enterAttract();
   { const k = (now-ringT)/900; ring.material.opacity = k < 1 ? .95*(1-k) : 0; ring.scale.setScalar(1+Math.max(0,k)*.6); }
 
   if (tour.on && !tour.dive) renderTour(); else { P = null; renderer.render(scene, camera); }
@@ -2614,6 +2614,18 @@ function tick(now){
 }
 document.body.classList.add('attract-on');
 resize();
+/* modo apresentação (?apresentacao ou ?kiosk): tela cheia no primeiro toque, cursor some parado, sem menu de contexto nem zoom da página, volta ao início após 60 s */
+{ const q = new URLSearchParams(location.search); if (q.has('apresentacao') || q.has('kiosk')){
+  document.body.classList.add('kiosk'); const st = document.createElement('style'); st.textContent = 'body.kiosk.nocur,body.kiosk.nocur *{cursor:none!important}'; document.head.appendChild(st);
+  const fs = () => { const d = document.documentElement; if (!document.fullscreenElement && d.requestFullscreen) d.requestFullscreen({navigationUI:'hide'}).catch(() => {}); };
+  addEventListener('pointerdown', fs, {capture:true});
+  let ct; const wake = () => { document.body.classList.remove('nocur'); clearTimeout(ct); ct = setTimeout(() => document.body.classList.add('nocur'), 2500); };
+  addEventListener('pointermove', wake, {passive:true}); wake();
+  addEventListener('contextmenu', e => e.preventDefault());
+  addEventListener('wheel', e => { if (e.ctrlKey) e.preventDefault(); }, {passive:false});
+  ['gesturestart','gesturechange'].forEach(ev => addEventListener(ev, e => e.preventDefault()));
+  if (!q.has('noidle')) IDLE_MS.v = 60000;
+} }
 camera.position.copy(OVERVIEW.pos); controls.target.copy(OVERVIEW.look);
 controls.minDistance = 7; controls.maxDistance = 28; controls.autoRotateSpeed = .7; controls.enabled = false;
 ccam.position.set(TX + ATR.r*Math.sin(ATR.a), ATR.y, TZ + ATR.r*Math.cos(ATR.a)); cctl.target.set(TX, 42, TZ); setLimits('edificio'); cctl.enabled = true; cctl.autoRotate = true;
