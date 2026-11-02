@@ -574,6 +574,7 @@ body[data-route="painel"]::before{content:"";position:fixed;inset:0 0 auto;heigh
 .th-linho .side{max-height:calc(100% - 4.8vh - clamp(28px,4.6vh,48px))}
 .rit-ax b{color:var(--snow);font-weight:600;font-family:var(--num)}
 .th-linho .rit-ax b{color:#1F1A16}
+.cp-add .pava{background:transparent!important;border:1.5px dashed currentColor;font-weight:600;font-size:18px;display:grid;place-items:center}
 </style>
 
 <!-- ============ INÍCIO ============ -->
@@ -1595,8 +1596,12 @@ var PN={sel:null,selStatus:'vendida',selCor:null,editCor:null,pendingFoto:null,u
     var showCor=st!=='livre';document.getElementById('shCorF').hidden=!showCor;document.getElementById('shCliF').hidden=!showCor;document.getElementById('shShowF').hidden=st!=='vendida';
     var rk=ranking(),cp=document.getElementById('shCor');
     cp.innerHTML=rk.map(function(r){return '<button type="button" class="cp'+(self.selCor===r.id?' on':'')+'" data-c="'+esc(r.id)+'"><span class="pava">'+avaHTML(r.c)+'</span><span>'+esc(String(r.c.nome).split(' ')[0])+'</span></button>'}).join('');
+    cp.innerHTML+='<button type="button" class="cp cp-add" data-add="1"><span class="pava">+</span><span>Novo</span></button>';
     cp.querySelectorAll('[data-c]').forEach(function(b){b.onclick=function(){self.selCor=b.dataset.c;self.paintSheet()}});
-    document.getElementById('shCorHint').textContent=rk.length?'':'Cadastre os corretores na aba Corretores.';
+    /* cadastro rápido sem sair da venda: só o nome; foto e imobiliária ficam para a aba Corretores */
+    cp.querySelector('[data-add]').onclick=function(){var nome=(prompt('Nome do corretor:')||'').trim();if(!nome)return;var id='c'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+      Store.setCor(id,{nome:nome.slice(0,60),imob:'',foto:''}).then(function(){self.selCor=id;self.paintSheet();self.toast('Corretor adicionado: '+nome,null)}).catch(function(){self.toast('Não foi possível salvar o corretor.',null)})};
+    document.getElementById('shCorHint').textContent=st==='vendida'&&!this.selCor?(rk.length?'Toque no corretor que fez a venda para liberar o botão.':'Toque em + Novo para cadastrar o corretor desta venda.'):'';
     var ok=document.getElementById('shOk');ok.textContent=st==='vendida'?'Confirmar venda':st==='reservada'?'Confirmar reserva':'Liberar unidade';
     ok.className='btn '+(st==='vendida'?'red':'dark');ok.disabled=(st==='vendida'&&!this.selCor)},
   confirm:function(){var self=this,id=this.sel,st=this.selStatus;if(!id)return;var prev=Store.units[id]?JSON.parse(JSON.stringify(Store.units[id])):null;
