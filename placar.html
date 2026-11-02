@@ -107,7 +107,7 @@ body[data-route="telao"]{background:var(--night);color:var(--snow);overflow:hidd
 .frows{display:grid;gap:.5vh}
 .frow{display:grid;grid-template-columns:2em auto 1fr auto;align-items:center;gap:10px;font-size:clamp(11px,.85vw,16px)}
 .frow .p{font-family:var(--num);color:var(--mist);font-weight:600}
-.frow .ava{width:clamp(24px,1.8vw,34px);height:clamp(24px,1.8vw,34px);font-size:clamp(9px,.7vw,13px);box-shadow:0 0 0 2px var(--red)}
+.frow .ava{width:clamp(24px,1.8vw,34px);height:clamp(24px,1.8vw,34px);font-size:clamp(9px,.7vw,13px);box-shadow:0 0 0 2px #fff}
 .frow .n{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;min-width:0}
 .frow .c{font-family:var(--num);font-weight:600}
 .rit{display:grid;gap:1.2vh}
@@ -642,7 +642,7 @@ body[data-route="painel"]::before{content:"";position:fixed;inset:0 0 auto;heigh
       <ol class="top3" id="podium"></ol>
     </aside>
     <section class="feed" id="feed" aria-live="polite">
-      <div class="feed-h"><span class="eyebrow" id="feedT">Ritmo do dia D</span></div>
+      <div class="feed-h"><span class="eyebrow" id="feedT">Ritmo do dia D</span><span class="feed-dots" style="visibility:hidden"><i class="on" data-fd="ritmo"></i><i data-fd="cors"></i></span></div>
       <div class="feed-body" id="feedList"></div>
       <div class="b-foot"><span id="clock">--:--</span><span>Boltz Films</span></div>
     </section>
@@ -1077,8 +1077,11 @@ var TV={
   idleTick:function(){
     if(document.body.dataset.route!=='telao'||this.finaleOn)return;
     var q0=Date.now()-this.lastEvent;
-    /* card de baixo fixo no ritmo do dia D (Felipe preferiu não rodar pelas últimas unidades) */
-    if(this.feedMode!=='ritmo')this.setFeedMode('ritmo');
+    /* card de baixo: alterna entre o ritmo do dia D e o ranking do 4º em diante (só quando já existe um 4º colocado) */
+    var has4=ranking().filter(function(r){return r.n}).length>3;
+    if(!has4||this.busy||this.queue.length){if(this.feedMode!=='ritmo')this.setFeedMode('ritmo')}
+    else if(Date.now()-this.feedAt>12000)this.setFeedMode(this.feedMode==='ritmo'?'cors':'ritmo');
+    var fdots=document.querySelector('.feed-dots');if(fdots)fdots.style.visibility=has4?'visible':'hidden';
     if(this.busy||this.queue.length)return;
     var quiet=q0;
     if(quiet<15000)return;
