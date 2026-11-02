@@ -2105,7 +2105,9 @@ document.getElementById('poi-x').addEventListener('click', e => { e.stopPropagat
 // escolhe o canto da área livre que menos cobre a linha, o destino e o prédio; troca de canto só quando vale a pena
 const pv = new THREE.Vector3();
 function placePoi(dt){
-  const open = mode === 'bairro' && !!curPlace && !attractOn; poiEl.classList.toggle('open', open); if (!open || !routeMesh) return;
+  const open = mode === 'bairro' && !!curPlace && !attractOn; poiEl.classList.toggle('open', open);
+  /* a linha e o anel do destino só aparecem junto com a ficha: fechou a ficha (por qualquer caminho), some a rota */
+  if (routeMesh) routeMesh.visible = open; destRing.visible = open && !!routeMesh; if (!open || !routeMesh) return;
   if (MOB()){ poiEl.style.transform = `translate(8px,${(52).toFixed(0)}px)`; return; }
   const pw = poiEl.offsetWidth, ph = poiEl.offsetHeight, L = sideRight() + 16, R = view.w - 34, T = 16 + 76, B = view.h - 48;
   const pts = [], P = routeMesh.userData.pts, step = Math.max(1, Math.floor(P.length/60));
