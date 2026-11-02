@@ -1982,7 +1982,15 @@ const UNITS = [
   {id:'06', type:'Studio amplo · varanda', area:45, ...PU(.76,.98,.38,.95,2), view:'Vista baía', face:'z'},
 ];
 const STATUS = [['Disponível','var(--ok)'],['Reservado','var(--warn)'],['Vendido','var(--off)']];
-const unitStatus = (f, u) => { const r = Math.abs(Math.sin(f*12.9898 + u*78.233)*43758.5453) % 1; return r < .55 ? 0 : r < .78 ? 1 : 2; };
+/* disponibilidade: vem do placar (mesma base do telão/painel) quando configurada; sem base, fica ilustrativa */
+const LIVE = {url:'__SUPA_URL__', key:'__SUPA_KEY__', units:null};
+const unitStatus = (f, u) => { if (LIVE.units){ const d = LIVE.units[String(f) + String(u).padStart(2, '0')]; return !d ? 0 : d.status === 'vendida' ? 2 : d.status === 'reservada' ? 1 : 0; }
+  const r = Math.abs(Math.sin(f*12.9898 + (+u)*78.233)*43758.5453) % 1; return r < .55 ? 0 : r < .78 ? 1 : 2; };
+async function pullLive(){ if (LIVE.url.startsWith('__')) return;
+  try { const r = await fetch(`${LIVE.url}/rest/v1/placar_docs?col=eq.unidades&select=id,data`, {headers:{apikey:LIVE.key, Authorization:'Bearer ' + LIVE.key}, cache:'no-store'});
+    if (!r.ok) return; const m = {}; for (const x of await r.json()) m[x.id] = x.data; const ch = JSON.stringify(m) !== JSON.stringify(LIVE.units); LIVE.units = m;
+    if (ch && typeof renderUnits === 'function') renderUnits(); } catch(e){} }
+setTimeout(pullLive, 1500); setInterval(pullLive, 10000);
 const sel = {floor:14, unit:'03', bandY:floorY(14)+FH/2, flash:0};
 
 /* ---------- lugares do bairro ---------- */
@@ -2214,7 +2222,7 @@ const unitsOf = f => UNITS;
 function renderUnits(){
   unitsEl.innerHTML = ''; let free = 0; const LIST = unitsOf(sel.floor);
   if (!LIST.find(u => u.id === sel.unit)) sel.unit = '03';
-  LIST.forEach((u,i) => { const st = unitStatus(sel.floor, i); if (!st) free++;
+  LIST.forEach((u,i) => { const st = unitStatus(sel.floor, u.id); if (!st) free++;
     const b = document.createElement('button'); b.className = 'unit'; b.style.setProperty('--i', i); b.setAttribute('aria-pressed', u.id === sel.unit);
     b.innerHTML = `<b>${u.id} <small style="float:right">${u.area} m²</small></b><span class="st" style="--c:${STATUS[st][1]}">${STATUS[st][0]}</span>`; b.title = u.type;
     b.addEventListener('click', () => setUnit(u.id)); unitsEl.appendChild(b); });
