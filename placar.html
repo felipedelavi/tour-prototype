@@ -769,7 +769,7 @@ body[data-route="painel"]::before{content:"";position:fixed;inset:0 0 auto;heigh
 <script>
 /* ===== base compartilhada fora do Claude: Supabase com a mesma interface (collection/doc/onSnapshot) ===== */
 (function(){
-  var SUPA_URL='__SUPA_URL__', SUPA_KEY='__SUPA_KEY__';
+  var SUPA_URL='https://vcujkfvuolilphotvgfg.supabase.co', SUPA_KEY='sb_publishable_5O3sq0Rk8ibppPv79TIBDA_9F6xtPBK';
   if (window.claude && window.claude.use) return;           /* dentro do Claude usa a base do próprio artifact */
   if (SUPA_URL.indexOf('__')===0) return;                     /* sem base configurada: modo local */
   var clientP=null;

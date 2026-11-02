@@ -1983,7 +1983,7 @@ const UNITS = [
 ];
 const STATUS = [['Disponível','var(--ok)'],['Reservado','var(--warn)'],['Vendido','var(--off)']];
 /* disponibilidade: vem do placar (mesma base do telão/painel) quando configurada; sem base, fica ilustrativa */
-const LIVE = {url:'__SUPA_URL__', key:'__SUPA_KEY__', units:null};
+const LIVE = {url:'https://vcujkfvuolilphotvgfg.supabase.co', key:'sb_publishable_5O3sq0Rk8ibppPv79TIBDA_9F6xtPBK', units:null};
 const unitStatus = (f, u) => { if (LIVE.units){ const d = LIVE.units[String(f) + String(u).padStart(2, '0')]; return !d ? 0 : d.status === 'vendida' ? 2 : d.status === 'reservada' ? 1 : 0; }
   const r = Math.abs(Math.sin(f*12.9898 + (+u)*78.233)*43758.5453) % 1; return r < .55 ? 0 : r < .78 ? 1 : 2; };
 async function pullLive(){ if (LIVE.url.startsWith('__')) return;
