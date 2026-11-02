@@ -564,6 +564,16 @@ body[data-route="painel"]::before{content:"";position:fixed;inset:0 0 auto;heigh
   .sum b{font-size:28px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* estado vazio do ranking: um bloco só, em vez de 3 linhas "Aguardando" */
+.t3-none{display:flex;align-items:center;gap:clamp(12px,1vw,18px);padding:clamp(10px,1.4vh,16px) 0}
+.t3-none .ic{display:flex;flex:none}.t3-none .ic i{width:clamp(28px,2.2vw,40px);height:clamp(28px,2.2vw,40px);border-radius:50%;border:1.5px dashed currentColor;opacity:.35;margin-left:-10px}.t3-none .ic i:first-child{margin-left:0}
+.t3-none .tx{display:grid;gap:3px;min-width:0}.t3-none b{font-weight:600;font-size:clamp(13px,.95vw,18px)}.t3-none .tx span{color:var(--mist);font-size:clamp(11px,.78vw,14px);line-height:1.35}
+/* card de baixo nunca vaza da coluna nem invade o "Powered by" */
+.feed{overflow:hidden}
+.th-linho .side{max-height:calc(100% - 4.8vh - clamp(28px,4.6vh,48px))}
+.rit-ax b{color:var(--snow);font-weight:600;font-family:var(--num)}
+.th-linho .rit-ax b{color:#1F1A16}
 </style>
 
 <!-- ============ INÍCIO ============ -->
@@ -975,8 +985,9 @@ var TV={
     el.classList.toggle('on',ids.length>0)},
   renderBoard:function(flashId){
     var rk=ranking(),pod=document.getElementById('podium');
-    pod.innerHTML=[0,1,2].map(function(i){var r=rk[i];
-      if(!r||!r.n)return '<li class="t3 empty r'+(i+1)+'"><span class="rk">'+(i+1)+'</span><span class="ph">–</span><span class="nm">Aguardando</span><span class="sc"></span></li>';
+    var nOn=[0,1,2].filter(function(i){return rk[i]&&rk[i].n}).length;
+    if(!nOn){pod.innerHTML='<li class="t3-none"><span class="ic"><i></i><i></i><i></i></span><span class="tx"><b>O ranking começa na primeira venda</b><span>Os 3 corretores com mais contratos aparecem aqui, com foto.</span></span></li>';if(this.feedMode==='cors')this.renderFeed();return}
+    pod.innerHTML=[0,1,2].slice(0,nOn).map(function(i){var r=rk[i];
       var xt='';if(i===0){var gap=r.n-(rk[1]?rk[1].n:0);xt='<span class="xt"><span class="xt-tag">Na liderança</span><span class="xg">'+(gap>0?'+'+gap+' à frente':'empate na ponta')+'</span></span>'}
       return '<li class="t3 r'+(i+1)+(flashId===r.id?' flash':'')+'"><span class="rk">'+(i+1)+'</span><span class="ph">'+avaHTML(r.c)+'</span><span class="nm">'+esc(r.c.nome)+'</span><span class="sc">'+r.n+'</span>'+xt+'</li>'}).join('');
     if(this.feedMode==='cors')this.renderFeed();
@@ -989,8 +1000,7 @@ var TV={
       var mx=Math.max(1,Math.max.apply(null,bins)),v=Math.max(0,c.v-qd0.length),p=Math.round(v/TOTAL*100);tt.textContent='Ritmo do dia D';
       el.innerHTML='<div class="rit"><div class="rit-top"><span class="rit-big">'+p+'<small>%</small></span><span class="rit-lb">da torre<br>vendida</span></div>'+
         '<div class="rit-bars" aria-label="Vendas a cada 15 minutos nas últimas 3 horas">'+bins.map(function(n,i){return '<i style="height:'+(8+n/mx*92)+'%" class="'+(n?'v':'')+(i===B-1?' now':'')+'"></i>'}).join('')+'</div>'+
-        '<div class="rit-ax"><span>3h atrás</span><span>agora</span></div>'+
-        '<div class="rit-st"><span><b>'+hr+'</b> na última hora</span><span><b>'+c.r+'</b> reservadas</span><span><b>'+(c.l+qd0.length)+'</b> disponíveis</span></div></div>';return}
+        '<div class="rit-ax"><span>3h atrás</span><span><b>'+hr+'</b> '+(hr===1?'venda':'vendas')+' na última hora</span><span>agora</span></div></div>';return}
     if(this.feedMode==='cors'){var rk=ranking().slice(3,10);tt.textContent='Ranking · do 4º em diante';
       el.innerHTML=rk.length?'<div class="frows">'+rk.map(function(r,i){return '<div class="frow"><span class="p">'+(i+4)+'º</span><span class="ava">'+avaHTML(r.c)+'</span><span class="n">'+esc(r.c.nome)+'</span><span class="c">'+r.n+'</span></div>'}).join('')+'</div>':'<div class="fempty">Os demais corretores aparecem aqui.</div>';return}
     var qd=this.queue.map(function(it){return it.id});var list=Object.keys(s).filter(function(k){return s[k]&&UNIT_BY[k]&&qd.indexOf(k)<0&&(s[k].status==='vendida'||s[k].status==='reservada')}).sort(function(a,b){return(s[b].ts||0)-(s[a].ts||0)}).slice(0,14);
